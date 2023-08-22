@@ -30,6 +30,24 @@ export const urlShortener = async (req, res) => {
 }
 
 export const customUrlShortener = async (req, res) => {
-	const allUrl = await ShortUrl.find({})
-	console.log(allUrl)
+	const { fullUrl, customUrl } = req.body
+	try {
+		const match = await ShortUrl.findOne({ shortUrl: customUrl })
+
+		if (match) {
+			console.log(match)
+			return res.status(500).json({ success: false, message: "Short Url already in use" })
+		} else {
+			console.log("No match")
+			const response = await ShortUrl.create({ fullUrl, shortUrl: customUrl })
+			res.status(201).send({
+				success: true,
+				message: "Custom short url created successfully.",
+				response
+			})
+		}
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({ success: false, message: error.message })
+	}
 }
